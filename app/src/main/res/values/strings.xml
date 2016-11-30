@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">NodeMaps</string>
+    <string name="title_activity_map_result">NodeMaps</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="mainActivityTitle">Node Maps 1.0</string>
+    <string name="startButtonLabel">start node maps</string>
+    <string name="serverIpTextFieldHint">Insert server ip address here</string>
+
+</resources>
