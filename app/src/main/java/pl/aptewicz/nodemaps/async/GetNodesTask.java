@@ -67,7 +67,6 @@ public class GetNodesTask extends AsyncTask<LatLngAndZoom, Void, String> {
 		message.setData(data);
 
 		handler.sendMessage(message);
-		return;
 	}
 
 }

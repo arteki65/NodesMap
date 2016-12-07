@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '23.0.2'
+    compileSdkVersion 24
+    buildToolsVersion '23.0.3'
 
     defaultConfig {
         applicationId "pl.aptewicz.nodemaps"
         minSdkVersion 17
-        targetSdkVersion 23
+        targetSdkVersion 24
     }
 
     buildTypes {
@@ -21,9 +21,9 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:23.1.1'
-    compile 'com.google.android.gms:play-services:8.4.0'
-    compile 'com.google.android.gms:play-services-ads:8.4.0'
-    compile 'com.google.android.gms:play-services-identity:8.4.0'
-    compile 'com.google.android.gms:play-services-gcm:8.4.0'
+    compile 'com.android.support:support-v4:24.2.1'
+    compile 'com.google.android.gms:play-services:9.0.1'
+    compile 'com.google.android.gms:play-services-ads:9.0.1'
+    compile 'com.google.android.gms:play-services-identity:9.0.1'
+    compile 'com.google.android.gms:play-services-gcm:9.0.1'
 }

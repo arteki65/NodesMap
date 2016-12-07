@@ -9,8 +9,6 @@ import android.widget.EditText;
 
 public class MainActivity extends Activity {
 
-    private Button startButton;
-
     private Intent mapResultIntent;
 
     private EditText serverIpTextField;
@@ -23,7 +21,7 @@ public class MainActivity extends Activity {
         mapResultIntent = new Intent(MainActivity.this, MapResult.class);
 
         serverIpTextField = (EditText) findViewById(R.id.serverIpTextField);
-        startButton = (Button) findViewById(R.id.startButton);
+        Button startButton = (Button) findViewById(R.id.startButton);
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
