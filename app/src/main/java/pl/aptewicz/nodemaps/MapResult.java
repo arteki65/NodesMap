@@ -6,7 +6,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -29,10 +33,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 
 import pl.aptewicz.nodemaps.async.GetNodesTask;
 
-public class MapResult extends FragmentActivity implements Callback, OnMapReadyCallback {
+public class MapResult extends AppCompatActivity implements Callback, OnMapReadyCallback {
 
     public static final String EDGE_KEY = "EDGE";
 
@@ -48,19 +53,32 @@ public class MapResult extends FragmentActivity implements Callback, OnMapReadyC
 
     private String serverIp;
 
+    private ActionBarDrawerToggle drawerToggle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_result);
 
+        DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
+                R.string.drawer_open, R.string.drawer_closed);
+        drawerLayout.addDrawerListener(drawerToggle);
+
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         Intent intent = getIntent();
-        this.serverIp = intent.getStringExtra("serverIp");
+        serverIp = intent.getStringExtra("serverIp");
 
         myOnCameraChangeListener = new MyOnCameraChangeListener();
         myOnMapClickListener = new MyOnMapClickListener();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -132,19 +150,14 @@ public class MapResult extends FragmentActivity implements Callback, OnMapReadyC
                         endNodeLongitude);
 
                 MarkerOptions startNodeMarker = new MarkerOptions().position(
-                        startNodeLatLng).title(
-                        startNodeLatitude + ", \n" + startNodeLongitude);
+                        startNodeLatLng).title(String.format(Locale.getDefault(),
+                        "%.2f \n %.2f", startNodeLatitude, startNodeLongitude));
                 googleMap.addMarker(startNodeMarker);
 
                 MarkerOptions endNodeMarker = new MarkerOptions().position(
-                        endNodeLatLng).title(
-                        endNodeLatitude + ", \n" + endNodeLongitude);
+                        endNodeLatLng).title(String.format(Locale.getDefault(),
+                        "%.2f \n %.2f", endNodeLatitude, endNodeLongitude));
                 googleMap.addMarker(endNodeMarker);
-
-                // PolylineOptions polyline = new
-                // PolylineOptions().add(startNodeLatLng).add(endNodeLatLng);
-
-                // Polyline polyline2 = new Pol
 
                 PolylineOptions edge = new PolylineOptions().add(
                         startNodeLatLng).add(endNodeLatLng);
