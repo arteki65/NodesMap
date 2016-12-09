@@ -2,28 +2,32 @@ package pl.aptewicz.nodemaps;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.GoogleMap.OnCameraChangeListener;
-import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
@@ -32,38 +36,78 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 
-import pl.aptewicz.nodemaps.async.GetNodesTask;
+import pl.aptewicz.nodemaps.listener.OnCameraChangeNodeMapsListener;
+import pl.aptewicz.nodemaps.listener.OnFtthJobClickListener;
+import pl.aptewicz.nodemaps.listener.OnMapClickNodeMapsListener;
+import pl.aptewicz.nodemaps.model.FtthJob;
+import pl.aptewicz.nodemaps.ui.adapter.FtthJobAdapter;
+import pl.aptewicz.nodemaps.util.PermissionUtils;
 
-public class MapResult extends AppCompatActivity implements Callback, OnMapReadyCallback {
+public class MapResult extends AppCompatActivity implements Callback, OnMapReadyCallback,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     public static final String EDGE_KEY = "EDGE";
 
-    private Collection<PolylineOptions> edges = new ArrayList<>();
+    public double zoom = 0.0;
 
-    private GoogleMap googleMap;
+    public Collection<PolylineOptions> edges = new ArrayList<>();
 
-    private double zoom = 0.0;
+    public GoogleMap googleMap;
 
-    private MyOnCameraChangeListener myOnCameraChangeListener;
+    public String serverIp;
+    public FtthJob[] ftthJobs;
 
-    private MyOnMapClickListener myOnMapClickListener;
+    private OnCameraChangeNodeMapsListener onCameraChangeNodeMapsListener;
 
-    private String serverIp;
+    private OnMapClickNodeMapsListener onMapClickNodeMapsListener;
 
     private ActionBarDrawerToggle drawerToggle;
+
+    private GoogleApiClient googleApiClient;
+    private Location lastLocation;
+    private String appTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_result);
 
+        appTitle = getTitle().toString();
+
         DrawerLayout drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
+        ftthJobs = new FtthJob[5];
+        for(int i = 0; i < 5; i++)  {
+            double latitude = 52.190623 + 0.0001 * i;
+            double longitude = 20.981345 + 0.0001 * i;
+            ftthJobs[i] = new FtthJob((long) (i + 1), "Zlecenie " + (i + 1), latitude, longitude);
+        }
+
+        ListView drawerList = (ListView) findViewById(R.id.left_drawer);
+        drawerList.setAdapter(new FtthJobAdapter(this, R.layout.ftth_job_list_item, ftthJobs));
+        drawerList.setOnItemClickListener(new OnFtthJobClickListener(this));
+
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
-                R.string.drawer_open, R.string.drawer_closed);
+                R.string.drawer_open, R.string.drawer_closed){
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                if(getSupportActionBar() != null) {
+                    getSupportActionBar().setTitle("Lista zleceń");
+                }
+                super.onDrawerOpened(drawerView);
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                if(getSupportActionBar() != null) {
+                    getSupportActionBar().setTitle(appTitle);
+                }
+                super.onDrawerClosed(drawerView);
+            }
+        };
         drawerLayout.addDrawerListener(drawerToggle);
 
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
@@ -72,8 +116,28 @@ public class MapResult extends AppCompatActivity implements Callback, OnMapReady
         Intent intent = getIntent();
         serverIp = intent.getStringExtra("serverIp");
 
-        myOnCameraChangeListener = new MyOnCameraChangeListener();
-        myOnMapClickListener = new MyOnMapClickListener();
+        onCameraChangeNodeMapsListener = new OnCameraChangeNodeMapsListener(this);
+        onMapClickNodeMapsListener = new OnMapClickNodeMapsListener(this);
+
+        if (googleApiClient == null) {
+            googleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        googleApiClient.connect();
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        googleApiClient.disconnect();
+        super.onStop();
     }
 
     @Override
@@ -92,8 +156,15 @@ public class MapResult extends AppCompatActivity implements Callback, OnMapReady
         double longitude = 21.006584;
         LatLng latLng = new LatLng(latitude, longitude);
 
-        CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(latLng).zoom(18).build();
+        CameraPosition cameraPosition;
+        if (lastLocation != null) {
+            cameraPosition = new CameraPosition.Builder()
+                    .target(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
+                    .zoom(12).build();
+        } else {
+            cameraPosition = new CameraPosition.Builder()
+                    .target(latLng).zoom(12).build();
+        }
 
         UiSettings uiSettings = googleMap.getUiSettings();
         uiSettings.setZoomControlsEnabled(true);
@@ -101,12 +172,24 @@ public class MapResult extends AppCompatActivity implements Callback, OnMapReady
         uiSettings.setRotateGesturesEnabled(true);
         uiSettings.setCompassEnabled(true);
         uiSettings.setMapToolbarEnabled(true);
+        uiSettings.setMyLocationButtonEnabled(true);
 
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
 
-        googleMap.setOnCameraChangeListener(myOnCameraChangeListener);
-        googleMap.setOnMapClickListener(myOnMapClickListener);
+        googleMap.setOnCameraChangeListener(onCameraChangeNodeMapsListener);
+        //googleMap.setOnMapClickListener(onMapClickNodeMapsListener);
+        googleMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+            @Override
+            public void onPolylineClick(Polyline polyline) {
+                polyline.setColor(Color.BLUE);
+            }
+        });
+        if (PermissionUtils.isEnoughPermissionsGranted(this)) {
+            return;
+        }
+        //noinspection MissingPermission
+        googleMap.setMyLocationEnabled(true);
 
         this.googleMap = googleMap;
     }
@@ -169,64 +252,48 @@ public class MapResult extends AppCompatActivity implements Callback, OnMapReady
                     "Cannot create jsonObject :(", Toast.LENGTH_SHORT).show();
         }
 
+        /*String encodedPolyline =
+                "knp}Hu|`_CmCq@kIoByA]mHiBaUqFcOsDwCs@mFkAeLsCWEGlAKxESfK_@|PSvKKbEZV`DpCfA~@aEdQcAhEaBbHgIx]eApEu@rDCAG@EDIVDZDFFBHADGFWE[";
+
+        List<LatLng> latLngs = PolylineUtils.decodePoly(encodedPolyline);
+
+        for (int i = 0; i < latLngs.size() - 1; i++) {
+            PolylineOptions step = new PolylineOptions().add(
+                    latLngs.get(i)).add(latLngs.get(i + 1));
+            googleMap.addPolyline(step);
+        }*/
+
         return false;
     }
 
-    private class MyOnCameraChangeListener implements OnCameraChangeListener {
-
-        @Override
-        public void onCameraChange(CameraPosition cameraPosition) {
-
-            if (cameraPosition.zoom != zoom) {
-                MapResult.this.zoom = cameraPosition.zoom;
-                googleMap.clear();
-                edges.clear();
-            }
-
-            LatLngBounds curScreen = googleMap.getProjection()
-                    .getVisibleRegion().latLngBounds;
-
-            LatLngAndZoom latLngAndZoom = new LatLngAndZoom(
-                    curScreen, cameraPosition.zoom);
-
-            new GetNodesTask(new Handler(MapResult.this), serverIp)
-                    .execute(latLngAndZoom);
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        if (PermissionUtils.isEnoughPermissionsGranted(this)) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
         }
+        //noinspection MissingPermission
+        lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
+                .zoom(12).build();
+        googleMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition));
     }
 
-    private class MyOnMapClickListener implements OnMapClickListener {
+    @Override
+    public void onConnectionSuspended(int i) {
 
-        @Override
-        public void onMapClick(LatLng arg0) {
-            System.out.println();
+    }
 
-            for (PolylineOptions edge : edges) {
-                List<LatLng> listLatLng = edge.getPoints();
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
-                LatLng startLatLng = listLatLng.get(0);
-                LatLng endLatLng = listLatLng.get(1);
-
-                double x1 = startLatLng.latitude;
-                double y1 = startLatLng.longitude;
-
-                double x2 = endLatLng.latitude;
-                double y2 = endLatLng.longitude;
-
-                double x3 = arg0.latitude;
-                double y3 = arg0.longitude;
-
-                double det = x1 * y2 + x2 * y3 + x3 * y1 - x3 * y2 - x1 * y3
-                        - x2 * y1;
-
-                if (det < 2e-5 && det > -2e-5 && (Math.min(x1, x2) <= x3)
-                        && (x3 <= Math.max(x1, x2)) && (Math.min(y1, y2) <= y3)
-                        && (y3 <= Math.max(y1, y2))) {
-
-                    PolylineOptions newEdge = new PolylineOptions()
-                            .add(startLatLng).add(endLatLng).color(Color.BLUE);
-                    googleMap.addPolyline(newEdge);
-                }
-            }
-        }
     }
 }

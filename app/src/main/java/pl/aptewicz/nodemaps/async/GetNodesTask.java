@@ -7,7 +7,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
-import pl.aptewicz.nodemaps.LatLngAndZoom;
+import pl.aptewicz.nodemaps.model.LatLngAndZoom;
 import pl.aptewicz.nodemaps.MapResult;
 import android.os.AsyncTask;
 import android.os.Bundle;
