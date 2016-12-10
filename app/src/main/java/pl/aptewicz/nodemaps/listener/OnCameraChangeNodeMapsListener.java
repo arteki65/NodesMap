@@ -1,6 +1,8 @@
 package pl.aptewicz.nodemaps.listener;
 
+import android.content.SharedPreferences;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
@@ -12,28 +14,30 @@ import pl.aptewicz.nodemaps.model.LatLngAndZoom;
 
 public class OnCameraChangeNodeMapsListener implements GoogleMap.OnCameraChangeListener {
 
-    private final MapResult mapResult;
+	private final MapResult mapResult;
 
-    public OnCameraChangeNodeMapsListener(MapResult mapResult) {
-        this.mapResult = mapResult;
-    }
+	public OnCameraChangeNodeMapsListener(MapResult mapResult) {
+		this.mapResult = mapResult;
+	}
 
-    @Override
-    public void onCameraChange(CameraPosition cameraPosition) {
+	@Override
+	public void onCameraChange(CameraPosition cameraPosition) {
 
-        if (cameraPosition.zoom != mapResult.zoom) {
-            mapResult.zoom = cameraPosition.zoom;
-            mapResult.googleMap.clear();
-            mapResult.edges.clear();
-        }
+		if (cameraPosition.zoom != mapResult.zoom) {
+			mapResult.zoom = cameraPosition.zoom;
+			mapResult.googleMap.clear();
+			mapResult.edges.clear();
+		}
 
-        LatLngBounds curScreen = mapResult.googleMap.getProjection()
-                .getVisibleRegion().latLngBounds;
+		LatLngBounds curScreen = mapResult.googleMap.getProjection()
+				.getVisibleRegion().latLngBounds;
 
-        LatLngAndZoom latLngAndZoom = new LatLngAndZoom(
-                curScreen, cameraPosition.zoom);
+		LatLngAndZoom latLngAndZoom = new LatLngAndZoom(curScreen, cameraPosition.zoom);
 
-        new GetNodesTask(new Handler(mapResult), mapResult.serverIp)
-                .execute(latLngAndZoom);
-    }
+		SharedPreferences sharedPreferences = PreferenceManager
+				.getDefaultSharedPreferences(mapResult);
+		String serverAddress = sharedPreferences.getString("server_address", "default");
+
+		new GetNodesTask(new Handler(mapResult), serverAddress).execute(latLngAndZoom);
+	}
 }

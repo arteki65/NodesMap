@@ -9,5 +9,22 @@
     <string name="serverIpTextFieldHint">Insert server ip address here</string>
     <string name="drawer_open">OPEN</string>
     <string name="drawer_closed">CLOSE</string>
+    <string name="insert_address">Wprowadź adre</string>
+    <string name="search_address">Szukaj</string>
+    <string name="error_invalid_password">Hasło nie może być puste</string>
+    <string name="error_field_required">Pole użytkownik nie może być puste</string>
+    <string name="prompt_username">Wprowadź nazwę użytkownika</string>
+    <string name="prompt_password">Wprowadź hasło</string>
+    <string name="action_sign_in_short">Zaloguj się</string>
+    <string name="action_sign_in">Zaloguj się</string>
+    <string name="settingsTitle">Ustawienia</string>
+    <string name="insertServerAddress">Wprowadź adres serwera</string>
+    <string name="insert_address_to_find">Wprowadź adres</string>
+    <string name="example_address">Ulica, Miasto</string>
+    <string name="prompt_address_to_find">Ulica, Miasto</string>
+    <string name="action_find_address">Wyszukaj</string>
 
+    <array name="mapResutAdminDrawerListItem">
+        <item>Wyszukaj adres</item>
+    </array>
 </resources>

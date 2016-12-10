@@ -16,6 +16,15 @@
             android:label="@string/title_activity_map_result">
         </activity>
 
+        <activity android:name=".SettingsActivity" android:label="SettingsActivity">
+        </activity>
+
+        <activity android:name=".FindAddressActivity">
+        </activity>
+        
+        <service android:name=".service.FetchLocationIntentService"
+            android:exported="false"/>
+
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyC9vAiYLpxdDTzAEIVE9c3cN_c5oJEnJeU" />
