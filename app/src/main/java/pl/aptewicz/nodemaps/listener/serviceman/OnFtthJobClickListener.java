@@ -1,4 +1,4 @@
-package pl.aptewicz.nodemaps.listener;
+package pl.aptewicz.nodemaps.listener.serviceman;
 
 import android.view.View;
 import android.widget.AdapterView;

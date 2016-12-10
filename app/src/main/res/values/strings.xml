@@ -23,6 +23,12 @@
     <string name="example_address">Ulica, Miasto</string>
     <string name="prompt_address_to_find">Ulica, Miasto</string>
     <string name="action_find_address">Wyszukaj</string>
+    <string name="admin_menu_header">Menu</string>
+    <string name="ftth_jobs_list_header">Lista zleceń</string>
+    <string name="add_ftth_job">Dodaj zlecenie</string>
+    <string name="latitude">Szerokość geograficzna</string>
+    <string name="longitude">Długość geograficzna</string>
+    <string name="prompt_ftth_job_description">Wprowadź opis zlecenia</string>
 
     <array name="mapResutAdminDrawerListItem">
         <item>Wyszukaj adres</item>

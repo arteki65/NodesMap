@@ -66,6 +66,7 @@ public class FindAddressActivity extends AppCompatActivity {
 					splitedAddress[splitedAddress.length - 2] + " " + splitedAddress[
 							splitedAddress.length - 1]);
 			intent.putExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY, ftthCheckerUser);
+			intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 			FindAddressActivity.this.startActivity(intent);
 		}
 	}

@@ -39,13 +39,12 @@ import pl.aptewicz.nodemaps.network.RequestQueueSingleton;
 public class MainActivity extends AppCompatActivity {
 
 	private Intent mapResultIntent;
-
+	private RequestQueueSingleton requestQueueSingleton;
+	private FtthCheckerUser ftthCheckerUser;
 	private EditText usernameEditText;
 	private EditText passwordEditText;
 	private View progressView;
 	private View loginFormView;
-
-	private RequestQueueSingleton requestQueueSingleton;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +87,14 @@ public class MainActivity extends AppCompatActivity {
 		progressView = findViewById(R.id.login_progress);
 
 		requestQueueSingleton = RequestQueueSingleton.getInstance(this);
+
+		showProgress(false);
+	}
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		showProgress(false);
 	}
 
 	@Override
@@ -146,8 +153,8 @@ public class MainActivity extends AppCompatActivity {
 			authenticateUser(username, password);
 		}
 	}
-	private void authenticateUser(String username, String password) {
-		final FtthCheckerUser ftthCheckerUser = new FtthCheckerUser();
+	private void authenticateUser(String username, final String password) {
+		ftthCheckerUser = new FtthCheckerUser();
 		ftthCheckerUser.setUsername(username);
 		ftthCheckerUser.setPassword(password);
 
@@ -161,12 +168,14 @@ public class MainActivity extends AppCompatActivity {
 					public void onResponse(JSONObject response) {
 						FtthCheckerUser ftthCheckerUserFromResponse = new Gson()
 								.fromJson(response.toString(), FtthCheckerUser.class);
+						ftthCheckerUserFromResponse.setPassword(ftthCheckerUser.getPassword());
+
 						mapResultIntent.putExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY,
 								ftthCheckerUserFromResponse);
 						Toast.makeText(MainActivity.this, "Authorization succes",
 								Toast.LENGTH_SHORT).show();
 						startActivity(mapResultIntent);
-						showProgress(false);
+						//showProgress(false);
 					}
 				}, new Response.ErrorListener() {
 			@Override

@@ -1,29 +1,31 @@
-package pl.aptewicz.nodemaps.listener;
-import android.content.Context;
+package pl.aptewicz.nodemaps.listener.admin;
 import android.content.Intent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 import pl.aptewicz.nodemaps.FindAddressActivity;
+import pl.aptewicz.nodemaps.MapResult;
 import pl.aptewicz.nodemaps.model.FtthCheckerUser;
 
 public class OnAdminDrawerItemClickListener implements OnItemClickListener {
 
-	private final Context context;
+	private final MapResult mapResult;
 	private final FtthCheckerUser ftthCheckerUser;
 
-	public OnAdminDrawerItemClickListener(Context context, FtthCheckerUser ftthCheckerUser) {
-		this.context = context;
+	public OnAdminDrawerItemClickListener(MapResult mapResult, FtthCheckerUser ftthCheckerUser) {
+		this.mapResult = mapResult;
 		this.ftthCheckerUser = ftthCheckerUser;
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		if(position == 0) {
-			Intent intent = new Intent(context, FindAddressActivity.class);
+		mapResult.drawerLayout.closeDrawer(mapResult.drawerList);
+		if (position == 0) {
+			Intent intent = new Intent(mapResult, FindAddressActivity.class);
 			intent.putExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY, ftthCheckerUser);
-			context.startActivity(intent);
+			intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
+			mapResult.startActivity(intent);
 		}
 	}
 }
