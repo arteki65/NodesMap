@@ -5,8 +5,6 @@ import java.util.Collection;
 
 public class FtthCheckerUser implements Serializable {
 
-	public static final String FTTH_CHECKER_USER_BUNDLE_KEY = "FtthCheckerUser";
-
 	public static final String FTTH_CHECKER_USER_KEY = "FtthCheckerUser";
 
 	private Long id;

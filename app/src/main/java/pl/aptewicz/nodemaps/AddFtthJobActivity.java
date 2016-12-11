@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 import pl.aptewicz.nodemaps.model.FtthCheckerUser;
 import pl.aptewicz.nodemaps.model.FtthJob;
+import pl.aptewicz.nodemaps.model.FtthJobStatus;
 import pl.aptewicz.nodemaps.network.FtthCheckerRestApiJsonArrayRequest;
 import pl.aptewicz.nodemaps.network.FtthCheckerRestApiRequest;
 import pl.aptewicz.nodemaps.network.RequestQueueSingleton;
@@ -100,7 +101,7 @@ public class AddFtthJobActivity extends AppCompatActivity {
 
 		FtthJob ftthJob = new FtthJob(null, ftthJobDescriptionEditText.getText().toString(),
 				latLng.latitude, latLng.longitude,
-				servicemenUsernames[servicemenList.getCheckedItemPosition()]);
+				servicemenUsernames[servicemenList.getCheckedItemPosition()], FtthJobStatus.NEW);
 
 		try {
 			FtthCheckerRestApiRequest ftthCheckerRestApiRequest = new FtthCheckerRestApiRequest(

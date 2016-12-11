@@ -4,10 +4,10 @@ import android.content.Intent;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
 
-import pl.aptewicz.nodemaps.AddFtthJobActivity;
 import pl.aptewicz.nodemaps.FtthJobDetailsActivity;
 import pl.aptewicz.nodemaps.MapResult;
 import pl.aptewicz.nodemaps.model.FtthCheckerUser;
+import pl.aptewicz.nodemaps.model.FtthJob;
 
 public class OnMarkerClickServicemanListener implements GoogleMap.OnMarkerClickListener {
 
@@ -24,11 +24,9 @@ public class OnMarkerClickServicemanListener implements GoogleMap.OnMarkerClickL
 				.putExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY, mapResult.ftthCheckerUser);
 		ftthJobDetailsIntent
 				.setFlags(ftthJobDetailsIntent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
-		ftthJobDetailsIntent
-				.putExtra(AddFtthJobActivity.FTTH_JOB_LAT_LNG_KEY, marker.getPosition());
 		ftthJobDetailsIntent.putExtra(FtthJobDetailsActivity.LAST_LOCATION, mapResult.lastLocation);
-		ftthJobDetailsIntent
-				.putExtra(FtthJobDetailsActivity.FTTH_JOB_DESCRIPTION, marker.getTitle());
+		ftthJobDetailsIntent.putExtra(FtthJob.FTTH_JOB,
+				mapResult.ftthJobs[mapResult.drawerList.getCheckedItemPosition()]);
 
 		mapResult.startActivity(ftthJobDetailsIntent);
 		return false;

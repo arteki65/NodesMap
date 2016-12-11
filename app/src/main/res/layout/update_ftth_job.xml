@@ -65,15 +65,18 @@
                 android:textSize="20sp"
                 android:textAlignment="center"/>
 
-        <Button
-                android:id="@+id/find_way_to_ftth_job_button"
-                style="?android:textAppearanceSmall"
+        <TextView
+                android:text="@string/ftth_job_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/find_way_ftth_job"
-                android:textStyle="bold"
-                android:onClick="findWayToFtthJob" />
+                android:textSize="20sp"
+                android:textAlignment="center"/>
+
+        <ListView
+                android:id="@+id/ftt_job_statuses_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:choiceMode="singleChoice"/>
 
         <Button
                 android:id="@+id/update_ftth_job_button"

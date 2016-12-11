@@ -70,8 +70,7 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 	private boolean showRoute;
 	private Location lastLocationFromFtthJobDetails;
 	private String routeOvervierw;
-	private LatLng ftthJobLatLng;
-	private String ftthJobDescription;
+	private FtthJob ftthJobFromDetailsActivity;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -123,8 +122,7 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 		lastLocationFromFtthJobDetails = intent
 				.getParcelableExtra(FtthJobDetailsActivity.LAST_LOCATION);
 		routeOvervierw = intent.getStringExtra(FtthJobDetailsActivity.ROUTE_POINTS);
-		ftthJobLatLng = intent.getParcelableExtra(AddFtthJobActivity.FTTH_JOB_LAT_LNG_KEY);
-		ftthJobDescription = intent.getStringExtra(FtthJobDetailsActivity.FTTH_JOB_DESCRIPTION);
+		ftthJobFromDetailsActivity = (FtthJob) intent.getSerializableExtra(FtthJob.FTTH_JOB);
 	}
 
 	private void createDrawerList() {
@@ -185,13 +183,15 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 			List<LatLng> route = PolylineUtils.decodePoly(routeOvervierw);
 
 			for (int i = 0; i < route.size() - 1; i++) {
-				PolylineOptions step = new PolylineOptions().add(
-						route.get(i)).add(route.get(i + 1));
+				PolylineOptions step = new PolylineOptions().add(route.get(i))
+						.add(route.get(i + 1));
 				googleMap.addPolyline(step);
 			}
 
-			MarkerOptions ftthJobMarker = new MarkerOptions().position(ftthJobLatLng)
-					.title(ftthJobDescription);
+			MarkerOptions ftthJobMarker = new MarkerOptions().position(
+					new LatLng(ftthJobFromDetailsActivity.getLatitude(),
+							ftthJobFromDetailsActivity.getLongitude())).title(
+					ftthJobFromDetailsActivity.getDescription());
 			googleMap.addMarker(ftthJobMarker).showInfoWindow();
 		}
 
