@@ -29,6 +29,8 @@
     <string name="latitude">Szerokość geograficzna</string>
     <string name="longitude">Długość geograficzna</string>
     <string name="prompt_ftth_job_description">Wprowadź opis zlecenia</string>
+    <string name="find_way_ftth_job">Wzynacz trasę do miejsca zlecenia</string>
+    <string name="ftth_job_description">Opis zlecenia</string>
 
     <array name="mapResutAdminDrawerListItem">
         <item>Wyszukaj adres</item>

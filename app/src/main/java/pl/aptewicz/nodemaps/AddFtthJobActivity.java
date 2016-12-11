@@ -26,6 +26,7 @@ import pl.aptewicz.nodemaps.model.FtthJob;
 import pl.aptewicz.nodemaps.network.FtthCheckerRestApiJsonArrayRequest;
 import pl.aptewicz.nodemaps.network.FtthCheckerRestApiRequest;
 import pl.aptewicz.nodemaps.network.RequestQueueSingleton;
+import pl.aptewicz.nodemaps.service.FetchLocationConstants;
 import pl.aptewicz.nodemaps.util.ServerAddressUtils;
 
 public class AddFtthJobActivity extends AppCompatActivity {
@@ -37,6 +38,7 @@ public class AddFtthJobActivity extends AppCompatActivity {
 	private ListView servicemenList;
 	private LatLng latLng;
 	private String[] servicemenUsernames;
+	private String fetchedLatLng;
 
 	@Override
 	protected void onCreate(
@@ -49,6 +51,7 @@ public class AddFtthJobActivity extends AppCompatActivity {
 		ftthCheckerUser = (FtthCheckerUser) intent
 				.getSerializableExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY);
 		latLng = intent.getParcelableExtra(FTTH_JOB_LAT_LNG_KEY);
+		fetchedLatLng = intent.getStringExtra(FetchLocationConstants.LAT_LNG);
 
 		TextView latitudeTextView = (TextView) findViewById(R.id.latitude_text_view);
 		latitudeTextView.setText(String.valueOf(latLng.latitude));
@@ -109,13 +112,21 @@ public class AddFtthJobActivity extends AppCompatActivity {
 						public void onResponse(JSONObject response) {
 							Toast.makeText(getApplicationContext(), "Zlecenie utworzone!",
 									Toast.LENGTH_LONG).show();
+							Intent mapResultIntent = new Intent(AddFtthJobActivity.this,
+									MapResult.class);
+							mapResultIntent.putExtra(FetchLocationConstants.LAT_LNG, fetchedLatLng);
+							mapResultIntent.putExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY,
+									ftthCheckerUser);
+							mapResultIntent.setFlags(
+									mapResultIntent.getFlags() | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+							AddFtthJobActivity.this.startActivity(mapResultIntent);
 						}
 					}, new Response.ErrorListener() {
 				@Override
 				public void onErrorResponse(VolleyError error) {
-					Toast.makeText(getApplicationContext(), "Wystąpił błąd podczas worzenia "
-							+ "zlecenia.",
-							Toast.LENGTH_LONG).show();
+					Toast.makeText(getApplicationContext(),
+							"Wystąpił błąd podczas worzenia " + "zlecenia.", Toast.LENGTH_LONG)
+							.show();
 				}
 			}, ftthCheckerUser);
 

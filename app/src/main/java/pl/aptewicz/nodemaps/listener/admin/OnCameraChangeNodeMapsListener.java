@@ -122,17 +122,6 @@ public class OnCameraChangeNodeMapsListener implements GoogleMap.OnCameraChangeL
 			}
 		}
 
-        /*String encodedPolyline =
-				"knp}Hu|`_CmCq@kIoByA]mHiBaUqFcOsDwCs@mFkAeLsCWEGlAKxESfK_@|PSvKKbEZV`DpCfA~@aEdQcAhEaBbHgIx]eApEu@rDCAG@EDIVDZDFFBHADGFWE[";
-
-        List<LatLng> latLngs = PolylineUtils.decodePoly(encodedPolyline);
-
-        for (int i = 0; i < latLngs.size() - 1; i++) {
-            PolylineOptions step = new PolylineOptions().add(
-                    latLngs.get(i)).add(latLngs.get(i + 1));
-            googleMap.addPolyline(step);
-        }*/
-
 		return false;
 	}
 }

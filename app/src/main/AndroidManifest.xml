@@ -24,6 +24,9 @@
 
         <activity android:name=".AddFtthJobActivity">
         </activity>
+
+        <activity android:name=".FtthJobDetailsActivity">
+        </activity>
         
         <service android:name=".service.FetchLocationIntentService"
             android:exported="false"/>

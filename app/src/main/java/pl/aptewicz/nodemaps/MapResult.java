@@ -23,16 +23,19 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import pl.aptewicz.nodemaps.listener.OnMapClickNodeMapsListener;
 import pl.aptewicz.nodemaps.listener.admin.OnAdminDrawerItemClickListener;
 import pl.aptewicz.nodemaps.listener.admin.OnCameraChangeNodeMapsListener;
 import pl.aptewicz.nodemaps.listener.admin.OnMarkerClickAdminListener;
 import pl.aptewicz.nodemaps.listener.serviceman.OnFtthJobClickListener;
+import pl.aptewicz.nodemaps.listener.serviceman.OnMarkerClickServicemanListener;
 import pl.aptewicz.nodemaps.model.FtthCheckerUser;
 import pl.aptewicz.nodemaps.model.FtthCheckerUserRole;
 import pl.aptewicz.nodemaps.model.FtthJob;
@@ -42,6 +45,7 @@ import pl.aptewicz.nodemaps.ui.adapter.FtthJobAdapter;
 import pl.aptewicz.nodemaps.ui.admin.AdminActionBarDrawerToogle;
 import pl.aptewicz.nodemaps.ui.serviceman.ServicemanActionBarDrawerToogle;
 import pl.aptewicz.nodemaps.util.PermissionUtils;
+import pl.aptewicz.nodemaps.util.PolylineUtils;
 
 public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 		GoogleApiClient.ConnectionCallbacks,
@@ -56,12 +60,18 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 	public DrawerLayout drawerLayout;
 	public ListView drawerList;
 	public String appTitle;
+	public String fetchedLatLong;
+	public Location lastLocation;
 
 	private OnCameraChangeNodeMapsListener onCameraChangeNodeMapsListener;
 	private OnMapClickNodeMapsListener onMapClickNodeMapsListener;
 	private ActionBarDrawerToggle drawerToggle;
 	private GoogleApiClient googleApiClient;
-	private String fetchedLatLong;
+	private boolean showRoute;
+	private Location lastLocationFromFtthJobDetails;
+	private String routeOvervierw;
+	private LatLng ftthJobLatLng;
+	private String ftthJobDescription;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +119,12 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 		ftthCheckerUser = (FtthCheckerUser) intent
 				.getSerializableExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY);
 		fetchedLatLong = intent.getStringExtra(FetchLocationConstants.LAT_LNG);
+		showRoute = intent.getBooleanExtra(FtthJobDetailsActivity.SHOW_ROUTE, false);
+		lastLocationFromFtthJobDetails = intent
+				.getParcelableExtra(FtthJobDetailsActivity.LAST_LOCATION);
+		routeOvervierw = intent.getStringExtra(FtthJobDetailsActivity.ROUTE_POINTS);
+		ftthJobLatLng = intent.getParcelableExtra(AddFtthJobActivity.FTTH_JOB_LAT_LNG_KEY);
+		ftthJobDescription = intent.getStringExtra(FtthJobDetailsActivity.FTTH_JOB_DESCRIPTION);
 	}
 
 	private void createDrawerList() {
@@ -160,6 +176,25 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 			onCameraChangeNodeMapsListener = new OnCameraChangeNodeMapsListener(this);
 		}
 
+		if (showRoute) {
+			LatLng latLng = new LatLng(lastLocationFromFtthJobDetails.getLatitude(),
+					lastLocationFromFtthJobDetails.getLongitude());
+			cameraPosition = new CameraPosition.Builder().target(latLng).zoom(12).build();
+			googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+			List<LatLng> route = PolylineUtils.decodePoly(routeOvervierw);
+
+			for (int i = 0; i < route.size() - 1; i++) {
+				PolylineOptions step = new PolylineOptions().add(
+						route.get(i)).add(route.get(i + 1));
+				googleMap.addPolyline(step);
+			}
+
+			MarkerOptions ftthJobMarker = new MarkerOptions().position(ftthJobLatLng)
+					.title(ftthJobDescription);
+			googleMap.addMarker(ftthJobMarker).showInfoWindow();
+		}
+
 		UiSettings uiSettings = googleMap.getUiSettings();
 		uiSettings.setZoomControlsEnabled(true);
 		uiSettings.setZoomGesturesEnabled(false);
@@ -167,13 +202,15 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 		uiSettings.setCompassEnabled(true);
 		uiSettings.setMapToolbarEnabled(true);
 		uiSettings.setMyLocationButtonEnabled(true);
-		uiSettings.setMapToolbarEnabled(true);
 
 		googleMap.setOnCameraChangeListener(onCameraChangeNodeMapsListener);
 		googleMap.setOnMapClickListener(onMapClickNodeMapsListener);
 
-		if(FtthCheckerUserRole.ADMIN.equals(ftthCheckerUser.getFtthCheckerUserRole())) {
+		if (FtthCheckerUserRole.ADMIN.equals(ftthCheckerUser.getFtthCheckerUserRole())) {
 			googleMap.setOnMarkerClickListener(new OnMarkerClickAdminListener(this));
+		} else if (FtthCheckerUserRole.SERVICEMAN
+				.equals(ftthCheckerUser.getFtthCheckerUserRole())) {
+			googleMap.setOnMarkerClickListener(new OnMarkerClickServicemanListener(this));
 		}
 
 		if (PermissionUtils.isEnoughPermissionsGranted(this)) {
@@ -203,10 +240,9 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 			return;
 		}
 
-		if (fetchedLatLong == null) {
+		if (fetchedLatLong == null && !showRoute) {
 			//noinspection MissingPermission
-			Location lastLocation = LocationServices.FusedLocationApi
-					.getLastLocation(googleApiClient);
+			lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 			CameraPosition cameraPosition = new CameraPosition.Builder()
 					.target(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
 					.zoom(18).build();
