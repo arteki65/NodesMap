@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -62,6 +63,7 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 	public String appTitle;
 	public String fetchedLatLong;
 	public Location lastLocation;
+	public Toolbar toolbar;
 
 	private OnCameraChangeNodeMapsListener onCameraChangeNodeMapsListener;
 	private OnMapClickNodeMapsListener onMapClickNodeMapsListener;
@@ -76,6 +78,9 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_map_result);
+
+		toolbar = (Toolbar) findViewById(R.id.my_toolbar);
+		setSupportActionBar(toolbar);
 
 		getExtrasFromIntent();
 
