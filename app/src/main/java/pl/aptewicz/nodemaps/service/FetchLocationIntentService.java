@@ -14,8 +14,6 @@ import java.util.Locale;
 
 public class FetchLocationIntentService extends IntentService {
 
-	private ResultReceiver resultReceiver;
-
 	public FetchLocationIntentService() {
 		super("FetchLocation");
 	}
@@ -25,7 +23,7 @@ public class FetchLocationIntentService extends IntentService {
 		Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 
 		String streetAddress = intent.getStringExtra(FetchLocationConstants.LOCATION_DATA_EXTRA);
-		resultReceiver = intent.getParcelableExtra(FetchLocationConstants.RECEIVER);
+		ResultReceiver resultReceiver = intent.getParcelableExtra(FetchLocationConstants.RECEIVER);
 
 		List<Address> addresses = null;
 

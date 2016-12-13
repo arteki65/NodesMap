@@ -33,6 +33,8 @@
     <string name="ftth_job_description">Opis zlecenia</string>
     <string name="update_ftth_job">Zmień status</string>
     <string name="ftth_job_status">Status zlecenia</string>
+    <string name="action_search">Wysukaj adres</string>
+    <string name="search_address_hint">Wprowadź adres(Ulica, Miasto)</string>
 
     <array name="mapResutAdminDrawerListItem">
         <item>Wyszukaj adres</item>

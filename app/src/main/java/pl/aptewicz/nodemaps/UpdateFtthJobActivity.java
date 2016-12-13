@@ -41,7 +41,7 @@ public class UpdateFtthJobActivity extends AppCompatActivity {
 
 		Intent intent = getIntent();
 		ftthCheckerUser = (FtthCheckerUser) intent
-				.getSerializableExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY);
+				.getSerializableExtra(FtthCheckerUser.FTTH_CHECKER_USER);
 		ftthJob = (FtthJob) intent.getSerializableExtra(FtthJob.FTTH_JOB);
 
 		TextView latitudeTextView = (TextView) findViewById(R.id.latitude_text_view);
@@ -91,7 +91,7 @@ public class UpdateFtthJobActivity extends AppCompatActivity {
 						Intent mapResultIntent = new Intent(UpdateFtthJobActivity.this,
 								MapResult.class);
 						mapResultIntent
-								.putExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY, ftthCheckerUser);
+								.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, ftthCheckerUser);
 						mapResultIntent.setFlags(
 								mapResultIntent.getFlags() | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						UpdateFtthJobActivity.this.startActivity(mapResultIntent);

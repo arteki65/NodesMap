@@ -12,15 +12,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity
-            android:name=".MapResult"
-            android:label="@string/title_activity_map_result">
-        </activity>
 
         <activity android:name=".SettingsActivity" android:label="SettingsActivity">
-        </activity>
-
-        <activity android:name=".FindAddressActivity">
         </activity>
 
         <activity android:name=".AddFtthJobActivity">
@@ -30,6 +23,12 @@
         </activity>
 
         <activity android:name=".UpdateFtthJobActivity">
+        </activity>
+
+        <activity android:name=".ui.admin.AdminMapActivity">
+        </activity>
+
+        <activity android:name=".ui.serviceman.ServicemanMapActivity">
         </activity>
         
         <service android:name=".service.FetchLocationIntentService"

@@ -21,7 +21,7 @@ public class OnMarkerClickServicemanListener implements GoogleMap.OnMarkerClickL
 	public boolean onMarkerClick(Marker marker) {
 		Intent ftthJobDetailsIntent = new Intent(mapResult, FtthJobDetailsActivity.class);
 		ftthJobDetailsIntent
-				.putExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY, mapResult.ftthCheckerUser);
+				.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, mapResult.ftthCheckerUser);
 		ftthJobDetailsIntent
 				.setFlags(ftthJobDetailsIntent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
 		ftthJobDetailsIntent.putExtra(FtthJobDetailsActivity.LAST_LOCATION, mapResult.lastLocation);

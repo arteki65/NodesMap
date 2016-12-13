@@ -5,10 +5,8 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -22,20 +20,14 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.android.volley.AuthFailureError;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.google.gson.Gson;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import pl.aptewicz.nodemaps.model.FtthCheckerUser;
-import pl.aptewicz.nodemaps.network.FtthCheckerRestApiRequest;
+import pl.aptewicz.nodemaps.model.FtthCheckerUserRole;
 import pl.aptewicz.nodemaps.network.RequestQueueSingleton;
+import pl.aptewicz.nodemaps.ui.admin.AdminMapActivity;
+import pl.aptewicz.nodemaps.ui.serviceman.ServicemanMapActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -157,8 +149,9 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 	private void authenticateUser(String username, final String password) {
-		ftthCheckerUser = new FtthCheckerUser();
-		ftthCheckerUser.setUsername(username);
+		//TODO: uncomment
+		/*ftthCheckerUser = new FtthCheckerUser();
+		1ftthCheckerUser.setUsername(username);
 		ftthCheckerUser.setPassword(password);
 
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -173,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
 								.fromJson(response.toString(), FtthCheckerUser.class);
 						ftthCheckerUserFromResponse.setPassword(ftthCheckerUser.getPassword());
 
-						mapResultIntent.putExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY,
+						mapResultIntent.putExtra(FtthCheckerUser.FTTH_CHECKER_USER,
 								ftthCheckerUserFromResponse);
 						Toast.makeText(MainActivity.this, "Authorization succes",
 								Toast.LENGTH_SHORT).show();
@@ -191,7 +184,16 @@ public class MainActivity extends AppCompatActivity {
 			}
 		}, ftthCheckerUser);
 
-		requestQueueSingleton.addToRequestQueue(ftthCheckerRestApiRequest);
+		requestQueueSingleton.addToRequestQueue(ftthCheckerRestApiRequest);*/
+
+		ftthCheckerUser = new FtthCheckerUser();
+		ftthCheckerUser.setUsername(username);
+		ftthCheckerUser.setPassword(password);
+		ftthCheckerUser.setFtthCheckerUserRole(FtthCheckerUserRole.SERVICEMAN);
+
+		Intent intent = new Intent(this, ServicemanMapActivity.class);
+		intent.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, ftthCheckerUser);
+		startActivity(intent);
 	}
 
 	private void resetErrors() {

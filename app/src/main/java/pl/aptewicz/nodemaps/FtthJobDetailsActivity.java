@@ -50,7 +50,7 @@ public class FtthJobDetailsActivity extends AppCompatActivity {
 
 		Intent intent = getIntent();
 		ftthCheckerUser = (FtthCheckerUser) intent
-				.getSerializableExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY);
+				.getSerializableExtra(FtthCheckerUser.FTTH_CHECKER_USER);
 		lastLocation = intent.getParcelableExtra(LAST_LOCATION);
 		ftthJob = (FtthJob) intent.getSerializableExtra(FtthJob.FTTH_JOB);
 
@@ -106,7 +106,7 @@ public class FtthJobDetailsActivity extends AppCompatActivity {
 						Intent mapResultIntent = new Intent(FtthJobDetailsActivity.this,
 								MapResult.class);
 						mapResultIntent
-								.putExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY, ftthCheckerUser);
+								.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, ftthCheckerUser);
 						mapResultIntent.putExtra(ROUTE_POINTS, routePoints);
 						mapResultIntent.putExtra(LAST_LOCATION, lastLocation);
 						mapResultIntent.putExtra(FtthJob.FTTH_JOB, ftthJob);
@@ -131,7 +131,7 @@ public class FtthJobDetailsActivity extends AppCompatActivity {
 	}
 	public void updateFtthJob(View view) {
 		Intent updateFtthJobIntent = new Intent(this, UpdateFtthJobActivity.class);
-		updateFtthJobIntent.putExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY, ftthCheckerUser);
+		updateFtthJobIntent.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, ftthCheckerUser);
 		updateFtthJobIntent.putExtra(FtthJob.FTTH_JOB, ftthJob);
 
 		updateFtthJobIntent

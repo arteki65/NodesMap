@@ -5,12 +5,14 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -32,9 +34,7 @@ import java.util.Collection;
 import java.util.List;
 
 import pl.aptewicz.nodemaps.listener.OnMapClickNodeMapsListener;
-import pl.aptewicz.nodemaps.listener.admin.OnAdminDrawerItemClickListener;
 import pl.aptewicz.nodemaps.listener.admin.OnCameraChangeNodeMapsListener;
-import pl.aptewicz.nodemaps.listener.admin.OnMarkerClickAdminListener;
 import pl.aptewicz.nodemaps.listener.serviceman.OnFtthJobClickListener;
 import pl.aptewicz.nodemaps.listener.serviceman.OnMarkerClickServicemanListener;
 import pl.aptewicz.nodemaps.model.FtthCheckerUser;
@@ -43,8 +43,6 @@ import pl.aptewicz.nodemaps.model.FtthJob;
 import pl.aptewicz.nodemaps.network.RequestQueueSingleton;
 import pl.aptewicz.nodemaps.service.FetchLocationConstants;
 import pl.aptewicz.nodemaps.ui.adapter.FtthJobAdapter;
-import pl.aptewicz.nodemaps.ui.admin.AdminActionBarDrawerToogle;
-import pl.aptewicz.nodemaps.ui.serviceman.ServicemanActionBarDrawerToogle;
 import pl.aptewicz.nodemaps.util.PermissionUtils;
 import pl.aptewicz.nodemaps.util.PolylineUtils;
 
@@ -77,7 +75,7 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_map_result);
+		setContentView(R.layout.serviceman_map_activity);
 
 		toolbar = (Toolbar) findViewById(R.id.my_toolbar);
 		setSupportActionBar(toolbar);
@@ -106,7 +104,7 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 	}
 
 	private void createDrawerToogle() {
-		if (FtthCheckerUserRole.ADMIN.equals(ftthCheckerUser.getFtthCheckerUserRole())) {
+		/*if (FtthCheckerUserRole.ADMIN.equals(ftthCheckerUser.getFtthCheckerUserRole())) {
 			drawerToggle = new AdminActionBarDrawerToogle(this, drawerLayout, R.string.drawer_open,
 					R.string.drawer_closed);
 			drawerLayout.addDrawerListener(drawerToggle);
@@ -115,13 +113,13 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 			drawerToggle = new ServicemanActionBarDrawerToogle(this, drawerLayout,
 					R.string.drawer_open, R.string.drawer_closed);
 			drawerLayout.addDrawerListener(drawerToggle);
-		}
+		}*/
 	}
 
 	private void getExtrasFromIntent() {
 		Intent intent = getIntent();
 		ftthCheckerUser = (FtthCheckerUser) intent
-				.getSerializableExtra(FtthCheckerUser.FTTH_CHECKER_USER_KEY);
+				.getSerializableExtra(FtthCheckerUser.FTTH_CHECKER_USER);
 		fetchedLatLong = intent.getStringExtra(FetchLocationConstants.LAT_LNG);
 		showRoute = intent.getBooleanExtra(FtthJobDetailsActivity.SHOW_ROUTE, false);
 		lastLocationFromFtthJobDetails = intent
@@ -138,13 +136,6 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 			ftthJobs = ftthCheckerUser.getFtthJobs().toArray(ftthJobs);
 			drawerList.setAdapter(new FtthJobAdapter(this, R.layout.ftth_job_list_item, ftthJobs));
 			drawerList.setOnItemClickListener(new OnFtthJobClickListener(this));
-		} else if (ftthCheckerUser != null && FtthCheckerUserRole.ADMIN
-				.equals(ftthCheckerUser.getFtthCheckerUserRole())) {
-			drawerList.setAdapter(
-					new ArrayAdapter<>(this, R.layout.map_result_admin_drawer_list_item,
-							getResources().getStringArray(R.array.mapResutAdminDrawerListItem)));
-			drawerList.setOnItemClickListener(
-					new OnAdminDrawerItemClickListener(this, ftthCheckerUser));
 		}
 	}
 
@@ -158,6 +149,31 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 	protected void onStop() {
 		googleApiClient.disconnect();
 		super.onStop();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.map_result_options, menu);
+
+		MenuItem searchItem = menu.findItem(R.id.action_search);
+		SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+
+		searchView.setQueryHint(getString(R.string.search_address_hint));
+
+		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+			@Override
+			public boolean onQueryTextSubmit(String query) {
+				Toast.makeText(MapResult.this, "SUBMIT", Toast.LENGTH_SHORT).show();
+				return false;
+			}
+
+			@Override
+			public boolean onQueryTextChange(String newText) {
+				return false;
+			}
+		});
+
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -211,9 +227,7 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 		googleMap.setOnCameraChangeListener(onCameraChangeNodeMapsListener);
 		googleMap.setOnMapClickListener(onMapClickNodeMapsListener);
 
-		if (FtthCheckerUserRole.ADMIN.equals(ftthCheckerUser.getFtthCheckerUserRole())) {
-			googleMap.setOnMarkerClickListener(new OnMarkerClickAdminListener(this));
-		} else if (FtthCheckerUserRole.SERVICEMAN
+		if (FtthCheckerUserRole.SERVICEMAN
 				.equals(ftthCheckerUser.getFtthCheckerUserRole())) {
 			googleMap.setOnMarkerClickListener(new OnMarkerClickServicemanListener(this));
 		}
