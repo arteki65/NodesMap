@@ -22,13 +22,18 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 
 import pl.aptewicz.nodemaps.R;
+import pl.aptewicz.nodemaps.listener.OnMapClickNodeMapsListener;
 import pl.aptewicz.nodemaps.model.FtthCheckerUser;
+import pl.aptewicz.nodemaps.network.RequestQueueSingleton;
 import pl.aptewicz.nodemaps.util.CameraPositionUtils;
 import pl.aptewicz.nodemaps.util.PermissionUtils;
 
@@ -44,9 +49,12 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
     public GoogleMap googleMap;
     public Location lastLocation;
     public CameraPosition currentCameraPosition;
+    public RequestQueueSingleton requestQueueSingleton;
+    public Collection<PolylineOptions> edges = new ArrayList<>();
 
     private GoogleApiClient googleApiClient;
     private boolean startAtLastLocation;
+    private OnMapClickNodeMapsListener onMapClickNodeMapsListener;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,6 +71,10 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
             googleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this).addApi(LocationServices.API).build();
         }
+
+        onMapClickNodeMapsListener = new OnMapClickNodeMapsListener(this);
+
+        requestQueueSingleton = RequestQueueSingleton.getInstance(this);
     }
 
     protected abstract void setLayoutView();
@@ -158,6 +170,8 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
         //noinspection MissingPermission
         googleMap.setMyLocationEnabled(true);
 
+        googleMap.setOnMapClickListener(onMapClickNodeMapsListener);
+
         this.googleMap = googleMap;
     }
 
@@ -176,7 +190,6 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
         } else {
             CameraPositionUtils.moveCamera(this, currentCameraPosition);
         }
-        //TODO: add here onCameraChangeListener
     }
 
     @Override

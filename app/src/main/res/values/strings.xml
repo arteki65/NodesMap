@@ -26,13 +26,13 @@
     <string name="admin_menu_header">Menu</string>
     <string name="ftth_jobs_list_header">Lista zleceń</string>
     <string name="add_ftth_job">Dodaj zlecenie</string>
-    <string name="latitude">Szerokość geograficzna</string>
-    <string name="longitude">Długość geograficzna</string>
+    <string name="latitude">Szerokość geograficzna:</string>
+    <string name="longitude">Długość geograficzna:</string>
     <string name="prompt_ftth_job_description">Wprowadź opis zlecenia</string>
     <string name="find_way_ftth_job">Wzynacz trasę do miejsca zlecenia</string>
-    <string name="ftth_job_description">Opis zlecenia</string>
+    <string name="ftth_job_description">Opis zlecenia:</string>
     <string name="update_ftth_job">Zmień status</string>
-    <string name="ftth_job_status">Status zlecenia</string>
+    <string name="ftth_job_status">Status zlecenia:</string>
     <string name="action_search">Wysukaj adres</string>
     <string name="search_address_hint">Wprowadź adres(Ulica, Miasto)</string>
 

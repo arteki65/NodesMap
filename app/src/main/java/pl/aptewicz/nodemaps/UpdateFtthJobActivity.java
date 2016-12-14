@@ -23,6 +23,7 @@ import pl.aptewicz.nodemaps.model.FtthJob;
 import pl.aptewicz.nodemaps.model.FtthJobStatus;
 import pl.aptewicz.nodemaps.network.FtthCheckerRestApiRequest;
 import pl.aptewicz.nodemaps.network.RequestQueueSingleton;
+import pl.aptewicz.nodemaps.ui.serviceman.ServicemanMapActivity;
 import pl.aptewicz.nodemaps.util.ServerAddressUtils;
 
 public class UpdateFtthJobActivity extends AppCompatActivity {
@@ -75,7 +76,7 @@ public class UpdateFtthJobActivity extends AppCompatActivity {
 	public void updateFtthJob(View view) throws JSONException {
 		FtthJobStatus updatedFtthJobStatus = FtthJobStatus.values()[ftthJobStatusesList
 				.getCheckedItemPosition()];
-		FtthJob updatedFtthJob = new FtthJob(ftthJob.getId(), ftthJob.getDescription(),
+		final FtthJob updatedFtthJob = new FtthJob(ftthJob.getId(), ftthJob.getDescription(),
 				ftthJob.getLatitude(), ftthJob.getLongitude(), ftthCheckerUser.getUsername(),
 				updatedFtthJobStatus);
 
@@ -88,13 +89,14 @@ public class UpdateFtthJobActivity extends AppCompatActivity {
 					public void onResponse(JSONObject response) {
 						Toast.makeText(getApplicationContext(), "Zlecenie zaktualizowane!",
 								Toast.LENGTH_LONG).show();
-						Intent mapResultIntent = new Intent(UpdateFtthJobActivity.this,
-								MapResult.class);
-						mapResultIntent
+						Intent servicemanMapActivity = new Intent(UpdateFtthJobActivity.this,
+								ServicemanMapActivity.class);
+						servicemanMapActivity
 								.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, ftthCheckerUser);
-						mapResultIntent.setFlags(
-								mapResultIntent.getFlags() | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						UpdateFtthJobActivity.this.startActivity(mapResultIntent);
+						servicemanMapActivity.putExtra(FtthJob.FTTH_JOB, updatedFtthJob);
+						servicemanMapActivity.setFlags(
+								servicemanMapActivity.getFlags() | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						UpdateFtthJobActivity.this.startActivity(servicemanMapActivity);
 					}
 				}, new Response.ErrorListener() {
 			@Override

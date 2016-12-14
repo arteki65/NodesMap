@@ -13,20 +13,21 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import pl.aptewicz.nodemaps.MapResult;
 import pl.aptewicz.nodemaps.model.FtthJob;
+import pl.aptewicz.nodemaps.ui.serviceman.ServicemanMapActivity;
 
 public class OnFtthJobClickListener implements OnItemClickListener {
 
-	private final MapResult mapResult;
+	private final ServicemanMapActivity servicemanMapActivity;
 
-	public OnFtthJobClickListener(MapResult mapResult) {
-		this.mapResult = mapResult;
+	public OnFtthJobClickListener(ServicemanMapActivity servicemanMapActivity) {
+		this.servicemanMapActivity = servicemanMapActivity;
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		mapResult.drawerLayout.closeDrawer(mapResult.drawerList);
-		GoogleMap googleMap = mapResult.googleMap;
-		FtthJob ftthJob = mapResult.ftthJobs[position];
+		servicemanMapActivity.drawerLayout.closeDrawer(servicemanMapActivity.drawerList);
+		GoogleMap googleMap = servicemanMapActivity.googleMap;
+		FtthJob ftthJob = servicemanMapActivity.ftthJobs[position];
 
 		CameraPosition cameraPosition = new CameraPosition.Builder()
 				.target(new LatLng(ftthJob.getLatitude(), ftthJob.getLongitude())).zoom(14).build();

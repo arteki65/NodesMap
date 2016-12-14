@@ -8,20 +8,20 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.List;
 
-import pl.aptewicz.nodemaps.MapResult;
+import pl.aptewicz.nodemaps.ui.AbstractMapActivity;
 
 
 public class OnMapClickNodeMapsListener implements GoogleMap.OnMapClickListener {
 
-    private final MapResult mapResult;
+    private final AbstractMapActivity abstractMapActivity;
 
-    public OnMapClickNodeMapsListener(MapResult mapResult) {
-        this.mapResult = mapResult;
+    public OnMapClickNodeMapsListener(AbstractMapActivity abstractMapActivity) {
+        this.abstractMapActivity = abstractMapActivity;
     }
 
     @Override
     public void onMapClick(LatLng arg0) {
-        for (PolylineOptions edge : mapResult.edges) {
+        for (PolylineOptions edge : abstractMapActivity.edges) {
             List<LatLng> listLatLng = edge.getPoints();
 
             LatLng startLatLng = listLatLng.get(0);
@@ -45,7 +45,7 @@ public class OnMapClickNodeMapsListener implements GoogleMap.OnMapClickListener 
 
                 PolylineOptions newEdge = new PolylineOptions()
                         .add(startLatLng).add(endLatLng).color(Color.BLUE);
-                mapResult.googleMap.addPolyline(newEdge);
+                abstractMapActivity.googleMap.addPolyline(newEdge);
             }
         }
     }

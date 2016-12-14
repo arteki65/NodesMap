@@ -35,8 +35,6 @@ import java.util.List;
 
 import pl.aptewicz.nodemaps.listener.OnMapClickNodeMapsListener;
 import pl.aptewicz.nodemaps.listener.admin.OnCameraChangeNodeMapsListener;
-import pl.aptewicz.nodemaps.listener.serviceman.OnFtthJobClickListener;
-import pl.aptewicz.nodemaps.listener.serviceman.OnMarkerClickServicemanListener;
 import pl.aptewicz.nodemaps.model.FtthCheckerUser;
 import pl.aptewicz.nodemaps.model.FtthCheckerUserRole;
 import pl.aptewicz.nodemaps.model.FtthJob;
@@ -93,7 +91,7 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 		MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
 		mapFragment.getMapAsync(this);
 
-		onMapClickNodeMapsListener = new OnMapClickNodeMapsListener(this);
+		//onMapClickNodeMapsListener = new OnMapClickNodeMapsListener(this);
 
 		if (googleApiClient == null) {
 			googleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this)
@@ -135,7 +133,7 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 			ftthJobs = new FtthJob[ftthCheckerUser.getFtthJobs().size()];
 			ftthJobs = ftthCheckerUser.getFtthJobs().toArray(ftthJobs);
 			drawerList.setAdapter(new FtthJobAdapter(this, R.layout.ftth_job_list_item, ftthJobs));
-			drawerList.setOnItemClickListener(new OnFtthJobClickListener(this));
+			//drawerList.setOnItemClickListener(new OnFtthJobClickListener(this));
 		}
 	}
 
@@ -192,7 +190,7 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 					Double.valueOf(fetchedLatLong.split(" ")[1]));
 			cameraPosition = new CameraPosition.Builder().target(latLng).zoom(18).build();
 			googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-			onCameraChangeNodeMapsListener = new OnCameraChangeNodeMapsListener(this);
+			//onCameraChangeNodeMapsListener = new OnCameraChangeNodeMapsListener(this);
 		}
 
 		if (showRoute) {
@@ -229,7 +227,7 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 
 		if (FtthCheckerUserRole.SERVICEMAN
 				.equals(ftthCheckerUser.getFtthCheckerUserRole())) {
-			googleMap.setOnMarkerClickListener(new OnMarkerClickServicemanListener(this));
+			//googleMap.setOnMarkerClickListener(new OnMarkerClickServicemanListener(this));
 		}
 
 		if (PermissionUtils.isEnoughPermissionsGranted(this)) {
@@ -266,7 +264,7 @@ public class MapResult extends AppCompatActivity implements OnMapReadyCallback,
 					.target(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()))
 					.zoom(18).build();
 			googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-			onCameraChangeNodeMapsListener = new OnCameraChangeNodeMapsListener(this);
+			//onCameraChangeNodeMapsListener = new OnCameraChangeNodeMapsListener(this);
 		}
 	}
 

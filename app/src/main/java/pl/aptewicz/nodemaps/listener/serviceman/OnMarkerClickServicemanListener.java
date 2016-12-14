@@ -8,27 +8,28 @@ import pl.aptewicz.nodemaps.FtthJobDetailsActivity;
 import pl.aptewicz.nodemaps.MapResult;
 import pl.aptewicz.nodemaps.model.FtthCheckerUser;
 import pl.aptewicz.nodemaps.model.FtthJob;
+import pl.aptewicz.nodemaps.ui.serviceman.ServicemanMapActivity;
 
 public class OnMarkerClickServicemanListener implements GoogleMap.OnMarkerClickListener {
 
-	private final MapResult mapResult;
+	private final ServicemanMapActivity servicemanMapActivity;
 
-	public OnMarkerClickServicemanListener(MapResult mapResult) {
-		this.mapResult = mapResult;
+	public OnMarkerClickServicemanListener(ServicemanMapActivity servicemanMapActivity) {
+		this.servicemanMapActivity = servicemanMapActivity;
 	}
 
 	@Override
 	public boolean onMarkerClick(Marker marker) {
-		Intent ftthJobDetailsIntent = new Intent(mapResult, FtthJobDetailsActivity.class);
+		Intent ftthJobDetailsIntent = new Intent(servicemanMapActivity, FtthJobDetailsActivity.class);
 		ftthJobDetailsIntent
-				.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, mapResult.ftthCheckerUser);
+				.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, servicemanMapActivity.ftthCheckerUser);
 		ftthJobDetailsIntent
 				.setFlags(ftthJobDetailsIntent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
-		ftthJobDetailsIntent.putExtra(FtthJobDetailsActivity.LAST_LOCATION, mapResult.lastLocation);
+		ftthJobDetailsIntent.putExtra(FtthJobDetailsActivity.LAST_LOCATION, servicemanMapActivity.lastLocation);
 		ftthJobDetailsIntent.putExtra(FtthJob.FTTH_JOB,
-				mapResult.ftthJobs[mapResult.drawerList.getCheckedItemPosition()]);
+				servicemanMapActivity.ftthJobs[servicemanMapActivity.drawerList.getCheckedItemPosition()]);
 
-		mapResult.startActivity(ftthJobDetailsIntent);
+		servicemanMapActivity.startActivity(ftthJobDetailsIntent);
 		return false;
 	}
 }

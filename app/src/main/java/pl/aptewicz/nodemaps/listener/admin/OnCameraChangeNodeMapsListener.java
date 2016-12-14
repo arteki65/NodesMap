@@ -20,34 +20,33 @@ import org.json.JSONObject;
 
 import java.util.Locale;
 
-import pl.aptewicz.nodemaps.MapResult;
 import pl.aptewicz.nodemaps.model.LatLngAndZoom;
 import pl.aptewicz.nodemaps.network.FtthCheckerRestApiJsonArrayRequest;
+import pl.aptewicz.nodemaps.ui.admin.AdminMapActivity;
 
 public class OnCameraChangeNodeMapsListener implements GoogleMap.OnCameraChangeListener {
 
-	private final MapResult mapResult;
+	private final AdminMapActivity adminMapActivity;
 
-	public OnCameraChangeNodeMapsListener(MapResult mapResult) {
-		this.mapResult = mapResult;
+	public OnCameraChangeNodeMapsListener(AdminMapActivity adminMapActivity) {
+		this.adminMapActivity = adminMapActivity;
 	}
 
 	@Override
 	public void onCameraChange(CameraPosition cameraPosition) {
 
-		if (cameraPosition.zoom != mapResult.zoom) {
-			mapResult.zoom = cameraPosition.zoom;
-			mapResult.googleMap.clear();
-			mapResult.edges.clear();
+		if (cameraPosition.zoom != adminMapActivity.googleMap.getCameraPosition().zoom) {
+			adminMapActivity.googleMap.clear();
+			adminMapActivity.edges.clear();
 		}
 
-		LatLngBounds curScreen = mapResult.googleMap.getProjection()
+		LatLngBounds curScreen = adminMapActivity.googleMap.getProjection()
 				.getVisibleRegion().latLngBounds;
 
 		LatLngAndZoom latLngAndZoom = new LatLngAndZoom(curScreen, cameraPosition.zoom);
 
 		SharedPreferences sharedPreferences = PreferenceManager
-				.getDefaultSharedPreferences(mapResult);
+				.getDefaultSharedPreferences(adminMapActivity);
 		String serverAddress = sharedPreferences.getString("server_address", "default");
 
 		LatLngBounds latLngBounds = latLngAndZoom.getLatLngBounds();
@@ -69,15 +68,15 @@ public class OnCameraChangeNodeMapsListener implements GoogleMap.OnCameraChangeL
 			public void onErrorResponse(VolleyError error) {
 				handleResponse(error.toString());
 			}
-		}, mapResult.ftthCheckerUser);
+		}, adminMapActivity.ftthCheckerUser);
 
-		mapResult.requestQueueSingleton.addToRequestQueue(ftthCheckerRestApiJsonArrayRequest);
+		adminMapActivity.requestQueueSingleton.addToRequestQueue(ftthCheckerRestApiJsonArrayRequest);
 	}
 
 	private boolean handleResponse(String jsonString) {
 
 		if (jsonString != null) {
-			Toast.makeText(mapResult, "Node is downloaded from server!!!",
+			Toast.makeText(adminMapActivity, "Node is downloaded from server!!!",
 					Toast.LENGTH_SHORT).show();
 
 			try {
@@ -103,21 +102,21 @@ public class OnCameraChangeNodeMapsListener implements GoogleMap.OnCameraChangeL
 							.title(String
 									.format(Locale.getDefault(), "%.2f \n %.2f", startNodeLatitude,
 											startNodeLongitude));
-					mapResult.googleMap.addMarker(startNodeMarker);
+					adminMapActivity.googleMap.addMarker(startNodeMarker);
 
 					MarkerOptions endNodeMarker = new MarkerOptions().position(endNodeLatLng)
 							.title(String
 									.format(Locale.getDefault(), "%.2f \n %.2f", endNodeLatitude,
 											endNodeLongitude));
-					mapResult.googleMap.addMarker(endNodeMarker);
+					adminMapActivity.googleMap.addMarker(endNodeMarker);
 
 					PolylineOptions edge = new PolylineOptions().add(startNodeLatLng)
 							.add(endNodeLatLng);
-					mapResult.googleMap.addPolyline(edge);
-					mapResult.edges.add(edge);
+					adminMapActivity.googleMap.addPolyline(edge);
+					adminMapActivity.edges.add(edge);
 				}
 			} catch (JSONException e) {
-				Toast.makeText(mapResult, "Cannot create jsonObject :(",
+				Toast.makeText(adminMapActivity, "Cannot create jsonObject :(",
 						Toast.LENGTH_SHORT).show();
 			}
 		}
