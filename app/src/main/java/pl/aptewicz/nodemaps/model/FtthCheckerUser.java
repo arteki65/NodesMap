@@ -15,36 +15,55 @@ public class FtthCheckerUser implements Serializable {
 
 	private FtthCheckerUserRole ftthCheckerUserRole;
 
-	private Collection<FtthJob> ftthJobs;
+	private Collection<FtthIssue> ftthIssues;
+
+	private LatLngDto lastPosition;
 
 	public Long getId() {
 		return id;
 	}
+
 	public void setId(Long id) {
 		this.id = id;
 	}
+
 	public String getUsername() {
 		return username;
 	}
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
 	public FtthCheckerUserRole getFtthCheckerUserRole() {
 		return ftthCheckerUserRole;
 	}
+
 	public void setFtthCheckerUserRole(FtthCheckerUserRole ftthCheckerUserRole) {
 		this.ftthCheckerUserRole = ftthCheckerUserRole;
 	}
-	public Collection<FtthJob> getFtthJobs() {
-		return ftthJobs;
+
+	public Collection<FtthIssue> getFtthIssues() {
+		return ftthIssues;
 	}
-	public void setFtthJobs(Collection<FtthJob> ftthJobs) {
-		this.ftthJobs = ftthJobs;
+
+	public void setFtthIssues(Collection<FtthIssue> ftthIssues) {
+		this.ftthIssues = ftthIssues;
 	}
+
 	public String getPassword() {
 		return password;
 	}
+
 	public void setPassword(String password) {
 		this.password = password;
+	}
+
+	public LatLngDto getLastPosition() {
+		return lastPosition;
+	}
+
+	public void setLastPosition(LatLngDto lastPosition) {
+		this.lastPosition = lastPosition;
 	}
 }

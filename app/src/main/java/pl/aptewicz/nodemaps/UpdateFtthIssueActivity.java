@@ -1,4 +1,5 @@
 package pl.aptewicz.nodemaps;
+
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
 import com.android.volley.VolleyError;
 import com.google.gson.Gson;
 
@@ -19,18 +21,23 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import pl.aptewicz.nodemaps.model.FtthCheckerUser;
+import pl.aptewicz.nodemaps.model.FtthIssue;
 import pl.aptewicz.nodemaps.model.FtthJob;
 import pl.aptewicz.nodemaps.model.FtthJobStatus;
+import pl.aptewicz.nodemaps.model.FtthRestApiError;
 import pl.aptewicz.nodemaps.network.FtthCheckerRestApiRequest;
 import pl.aptewicz.nodemaps.network.RequestQueueSingleton;
 import pl.aptewicz.nodemaps.ui.serviceman.ServicemanMapActivity;
 import pl.aptewicz.nodemaps.util.ServerAddressUtils;
 
-public class UpdateFtthJobActivity extends AppCompatActivity {
+public class UpdateFtthIssueActivity extends AppCompatActivity {
 
-	private FtthJob ftthJob;
+	private FtthIssue ftthIssue;
+
 	private FtthCheckerUser ftthCheckerUser;
+
 	private RequestQueueSingleton requestQueueSingleton;
+
 	private ListView ftthJobStatusesList;
 
 	@Override
@@ -43,17 +50,17 @@ public class UpdateFtthJobActivity extends AppCompatActivity {
 		Intent intent = getIntent();
 		ftthCheckerUser = (FtthCheckerUser) intent
 				.getSerializableExtra(FtthCheckerUser.FTTH_CHECKER_USER);
-		ftthJob = (FtthJob) intent.getSerializableExtra(FtthJob.FTTH_JOB);
+		ftthIssue = (FtthIssue) intent.getSerializableExtra(FtthIssue.FTTH_ISSUE);
 
 		TextView latitudeTextView = (TextView) findViewById(R.id.latitude_text_view);
-		latitudeTextView.setText(String.valueOf(ftthJob.getLatitude()));
+		latitudeTextView.setText(String.valueOf(ftthIssue.getLatitude()));
 
 		TextView longitudeTextView = (TextView) findViewById(R.id.longitude_text_view);
-		longitudeTextView.setText(String.valueOf(ftthJob.getLongitude()));
+		longitudeTextView.setText(String.valueOf(ftthIssue.getLongitude()));
 
 		TextView ftthJobDescriptionTextView = (TextView) findViewById(
 				R.id.ftth_job_description_text_view);
-		ftthJobDescriptionTextView.setText(ftthJob.getDescription());
+		ftthJobDescriptionTextView.setText(ftthIssue.getDescription());
 
 		ftthJobStatusesList = (ListView) findViewById(R.id.ftt_job_statuses_list);
 
@@ -64,7 +71,7 @@ public class UpdateFtthJobActivity extends AppCompatActivity {
 				.setAdapter(new ArrayAdapter<>(this, listLayout, FtthJobStatus.values()));
 		int checkedStatus = 0;
 		for (int i = 0; i < FtthJobStatus.values().length; i++) {
-			if (FtthJobStatus.values()[i].equals(ftthJob.getJobStatus())) {
+			if (FtthJobStatus.values()[i].equals(ftthIssue.getFtthJob().getJobStatus())) {
 				checkedStatus = i;
 			}
 		}
@@ -76,33 +83,47 @@ public class UpdateFtthJobActivity extends AppCompatActivity {
 	public void updateFtthJob(View view) throws JSONException {
 		FtthJobStatus updatedFtthJobStatus = FtthJobStatus.values()[ftthJobStatusesList
 				.getCheckedItemPosition()];
-		final FtthJob updatedFtthJob = new FtthJob(ftthJob.getId(), ftthJob.getDescription(),
-				ftthJob.getLatitude(), ftthJob.getLongitude(), ftthCheckerUser.getUsername(),
-				updatedFtthJobStatus);
+		final FtthJob ftthJobToUpdate = new FtthJob(ftthIssue.getFtthJob().getId(),
+				ftthIssue.getDescription(), updatedFtthJobStatus, ftthCheckerUser.getUsername(),
+				ftthIssue.getFtthJob().getAffectedAccessPoints());
 
 		FtthCheckerRestApiRequest ftthCheckerRestApiRequest = new FtthCheckerRestApiRequest(
 				Request.Method.PUT,
-				ServerAddressUtils.getServerHttpAddressWithContext(this) + "/ftthJob",
-				new JSONObject(new Gson().toJson(updatedFtthJob)),
+				ServerAddressUtils.getServerHttpAddressWithContext(this) + "/ftthJob/updateStatus",
+				new JSONObject(new Gson().toJson(ftthJobToUpdate)),
 				new Response.Listener<JSONObject>() {
+
 					@Override
 					public void onResponse(JSONObject response) {
+						FtthJob updatedFtthJob = new Gson()
+								.fromJson(response.toString(), FtthJob.class);
 						Toast.makeText(getApplicationContext(), "Zlecenie zaktualizowane!",
 								Toast.LENGTH_LONG).show();
-						Intent servicemanMapActivity = new Intent(UpdateFtthJobActivity.this,
+						Intent servicemanMapActivity = new Intent(UpdateFtthIssueActivity.this,
 								ServicemanMapActivity.class);
 						servicemanMapActivity
 								.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, ftthCheckerUser);
-						servicemanMapActivity.putExtra(FtthJob.FTTH_JOB, updatedFtthJob);
+						ftthIssue.setFtthJob(updatedFtthJob);
+						servicemanMapActivity.putExtra(FtthIssue.FTTH_ISSUE, ftthIssue);
 						servicemanMapActivity.setFlags(
 								servicemanMapActivity.getFlags() | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						UpdateFtthJobActivity.this.startActivity(servicemanMapActivity);
+						UpdateFtthIssueActivity.this.startActivity(servicemanMapActivity);
 					}
 				}, new Response.ErrorListener() {
+
 			@Override
 			public void onErrorResponse(VolleyError error) {
-				Toast.makeText(getApplicationContext(),
-						"Wystąpił błąd podczas aktualizowania zlecenia.", Toast.LENGTH_LONG).show();
+				if (error instanceof ServerError && error.networkResponse.statusCode == 500) {
+					FtthRestApiError ftthRestApiError = new Gson()
+							.fromJson(new String(error.networkResponse.data),
+									FtthRestApiError.class);
+					Toast.makeText(UpdateFtthIssueActivity.this, ftthRestApiError.translate(),
+							Toast.LENGTH_LONG).show();
+				} else {
+					Toast.makeText(getApplicationContext(),
+							"Wystąpił błąd podczas aktualizowania zlecenia.", Toast.LENGTH_LONG)
+							.show();
+				}
 			}
 		}, ftthCheckerUser);
 

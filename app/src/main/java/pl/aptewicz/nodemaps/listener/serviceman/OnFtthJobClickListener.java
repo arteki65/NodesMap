@@ -11,8 +11,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import pl.aptewicz.nodemaps.MapResult;
-import pl.aptewicz.nodemaps.model.FtthJob;
+import pl.aptewicz.nodemaps.model.FtthIssue;
 import pl.aptewicz.nodemaps.ui.serviceman.ServicemanMapActivity;
 
 public class OnFtthJobClickListener implements OnItemClickListener {
@@ -27,15 +26,15 @@ public class OnFtthJobClickListener implements OnItemClickListener {
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		servicemanMapActivity.drawerLayout.closeDrawer(servicemanMapActivity.drawerList);
 		GoogleMap googleMap = servicemanMapActivity.googleMap;
-		FtthJob ftthJob = servicemanMapActivity.ftthJobs[position];
+		FtthIssue ftthIssue = servicemanMapActivity.ftthIssues[position];
 
 		CameraPosition cameraPosition = new CameraPosition.Builder()
-				.target(new LatLng(ftthJob.getLatitude(), ftthJob.getLongitude())).zoom(14).build();
+				.target(new LatLng(ftthIssue.getLatitude(), ftthIssue.getLongitude())).zoom(14).build();
 		googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 		MarkerOptions ftthJobMarker = new MarkerOptions()
-				.position(new LatLng(ftthJob.getLatitude(), ftthJob.getLongitude())).title
-						(ftthJob.getDescription());
+				.position(new LatLng(ftthIssue.getLatitude(), ftthIssue.getLongitude()))
+				.title(ftthIssue.getDescription());
 
 		Marker marker = googleMap.addMarker(ftthJobMarker);
 		marker.showInfoWindow();
