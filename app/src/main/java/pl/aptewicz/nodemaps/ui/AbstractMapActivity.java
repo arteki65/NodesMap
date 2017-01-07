@@ -184,8 +184,8 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
 		UiSettings uiSettings = googleMap.getUiSettings();
-		uiSettings.setZoomControlsEnabled(true);
-		uiSettings.setZoomGesturesEnabled(false);
+		uiSettings.setZoomControlsEnabled(false);
+		uiSettings.setZoomGesturesEnabled(true);
 		uiSettings.setRotateGesturesEnabled(true);
 		uiSettings.setCompassEnabled(true);
 		uiSettings.setMyLocationButtonEnabled(true);

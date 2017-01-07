@@ -85,6 +85,16 @@
                 android:textStyle="bold"
                 android:onClick="updateFtthJob" />
 
+        <Button
+                android:id="@+id/show_signal_path_button"
+                style="?android:textAppearanceSmall"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/show_signal_path"
+                android:textStyle="bold"
+                android:onClick="showSignalPath" />
+
     </LinearLayout>
 
 </LinearLayout>

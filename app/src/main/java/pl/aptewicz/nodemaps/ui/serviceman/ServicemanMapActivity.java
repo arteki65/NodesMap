@@ -1,6 +1,7 @@
 package pl.aptewicz.nodemaps.ui.serviceman;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -14,6 +15,7 @@ import com.android.volley.VolleyError;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -22,6 +24,7 @@ import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,8 +34,13 @@ import pl.aptewicz.nodemaps.FtthIssueDetailsActivity;
 import pl.aptewicz.nodemaps.R;
 import pl.aptewicz.nodemaps.listener.serviceman.OnFtthJobClickListener;
 import pl.aptewicz.nodemaps.listener.serviceman.OnMarkerClickServicemanListener;
+import pl.aptewicz.nodemaps.model.AccessPointDto;
+import pl.aptewicz.nodemaps.model.Edge;
 import pl.aptewicz.nodemaps.model.FtthIssue;
+import pl.aptewicz.nodemaps.model.Hierarchy;
+import pl.aptewicz.nodemaps.model.NodeDto;
 import pl.aptewicz.nodemaps.network.FtthCheckerRestApiJsonArrayRequest;
+import pl.aptewicz.nodemaps.network.FtthCheckerRestApiRequest;
 import pl.aptewicz.nodemaps.ui.AbstractMapActivity;
 import pl.aptewicz.nodemaps.ui.adapter.FtthIssueAdapter;
 import pl.aptewicz.nodemaps.util.PermissionUtils;
@@ -56,6 +64,8 @@ public class ServicemanMapActivity extends AbstractMapActivity {
 	private Location lastLocationFromJobDetails;
 
 	private FtthIssue ftthIssue;
+
+	private boolean showSignalPath;
 
 	@Override
 	protected void setLayoutView() {
@@ -88,6 +98,7 @@ public class ServicemanMapActivity extends AbstractMapActivity {
 		lastLocationFromJobDetails = intent
 				.getParcelableExtra(FtthIssueDetailsActivity.LAST_LOCATION);
 		ftthIssue = (FtthIssue) intent.getSerializableExtra(FtthIssue.FTTH_ISSUE);
+		showSignalPath = intent.getBooleanExtra(FtthIssueDetailsActivity.SHOW_SIGNAL_PATH, false);
 	}
 
 	private void updateFtthJob(FtthIssue ftthJob) {
@@ -207,6 +218,125 @@ public class ServicemanMapActivity extends AbstractMapActivity {
 
 			googleMap
 					.animateCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 100));
+		} else if (showSignalPath) {
+			if (PermissionUtils.isEnoughPermissionsGranted(this)) {
+				return;
+			}
+
+			//noinspection MissingPermission
+			lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+
+			final LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+			boundsBuilder
+					.include(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
+
+			LatLng issueLatLng = new LatLng(ftthIssue.getLatitude(), ftthIssue.getLongitude());
+			MarkerOptions issueLocationMarker = new MarkerOptions().position(issueLatLng)
+					.title("Miejsce zgłoszenia").icon(BitmapDescriptorFactory
+							.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+			googleMap.addMarker(issueLocationMarker).showInfoWindow();
+
+			boundsBuilder.include(issueLatLng);
+
+			AccessPointDto accessPoint = ftthIssue.getFtthJob().getAffectedAccessPoints().iterator()
+					.next();
+			LatLng accessPointLatLng = new LatLng(accessPoint.getNode().getY(),
+					accessPoint.getNode().getX());
+			MarkerOptions accessPointMarker = new MarkerOptions().position(accessPointLatLng)
+					.title("Punkt dostępowy")
+					.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+			googleMap.addMarker(accessPointMarker).showInfoWindow();
+
+			boundsBuilder.include(accessPointLatLng);
+
+			FtthCheckerRestApiRequest getHierarchyRequest = new FtthCheckerRestApiRequest(
+					Request.Method.GET, ServerAddressUtils.getServerHttpAddressWithContext(this)
+					+ "/hierarchy/findByAccessSiteLike/" + accessPoint.getNode().getName() + "_"
+					+ ftthIssue.getFtthJob().getAffectedAccessPoints().iterator().next()
+					.getDescription().substring(0, 3), null, new Response.Listener<JSONObject>() {
+
+				@Override
+				public void onResponse(JSONObject response) {
+					Hierarchy hierarchy = new Gson().fromJson(response.toString(), Hierarchy.class);
+
+					NodeDto distributionSiteNode = hierarchy.getDistributionSiteNode();
+					LatLng distributionSiteLatLng = new LatLng(distributionSiteNode.getY(),
+							distributionSiteNode.getX());
+					boundsBuilder.include(distributionSiteLatLng);
+
+					MarkerOptions distributionPointMarker = new MarkerOptions()
+							.position(distributionSiteLatLng)
+							.title("Punkt dystrybucji\nSzczegóły:" + " " +
+									hierarchy.getDistributionSiteDescription())
+							.icon(BitmapDescriptorFactory
+									.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+					googleMap.addMarker(distributionPointMarker).showInfoWindow();
+
+					NodeDto centralSiteNode = hierarchy.getCentralSiteNode();
+					LatLng centralSiteLatLng = new LatLng(centralSiteNode.getY(),
+							centralSiteNode.getX());
+					boundsBuilder.include(centralSiteLatLng);
+
+					MarkerOptions centralSiteMarker = new MarkerOptions()
+							.position(centralSiteLatLng)
+							.snippet("OLT\nSzczególy: " + hierarchy.getCentralSiteDescription())
+							.icon(BitmapDescriptorFactory
+									.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+					googleMap.addMarker(centralSiteMarker).showInfoWindow();
+
+					googleMap.animateCamera(
+							CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 100));
+
+					googleMap.setOnMarkerClickListener(null);
+				}
+			}, new Response.ErrorListener() {
+
+				@Override
+				public void onErrorResponse(VolleyError error) {
+
+				}
+			}, ftthCheckerUser);
+
+			requestQueueSingleton.addToRequestQueue(getHierarchyRequest);
+
+			FtthCheckerRestApiJsonArrayRequest findPathRequest = new FtthCheckerRestApiJsonArrayRequest(
+					Request.Method.GET, ServerAddressUtils.getServerHttpAddressWithContext(this)
+					+ "/path/findPathForIssue/" + ftthIssue.getId(), null,
+					new Response.Listener<JSONArray>() {
+
+						@Override
+						public void onResponse(JSONArray response) {
+							Collection<Edge> path = new ArrayList<>();
+
+							for (int i = 0; i < response.length(); i++) {
+								try {
+									Edge edge = new Gson()
+											.fromJson(response.getJSONObject(i).toString(),
+													Edge.class);
+									path.add(edge);
+								} catch (JSONException e) {
+									e.printStackTrace();
+								}
+							}
+
+							for (Edge edge : path) {
+								PolylineOptions step = new PolylineOptions()
+										.add(new LatLng(edge.getNodeA().getY(),
+												edge.getNodeA().getX()))
+										.add(new LatLng(edge.getNodeB().getY(),
+												edge.getNodeB().getX())).color(Color.BLUE);
+								googleMap.addPolyline(step);
+							}
+						}
+					}, new Response.ErrorListener() {
+
+				@Override
+				public void onErrorResponse(VolleyError error) {
+
+				}
+			}, ftthCheckerUser);
+
+			requestQueueSingleton.addToRequestQueue(findPathRequest);
 		} else {
 			super.onConnected(bundle);
 		}
