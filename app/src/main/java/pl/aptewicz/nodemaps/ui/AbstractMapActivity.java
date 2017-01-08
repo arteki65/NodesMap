@@ -13,6 +13,7 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -51,7 +52,8 @@ import pl.aptewicz.nodemaps.util.ServerAddressUtils;
 
 public abstract class AbstractMapActivity extends AppCompatActivity implements OnMapReadyCallback,
 		GoogleApiClient.ConnectionCallbacks,
-		GoogleApiClient.OnConnectionFailedListener, LocationListener {
+		GoogleApiClient.OnConnectionFailedListener,
+		LocationListener {
 
 	public static final String CURRENT_CAMERA_POSITION = "pl.aptewicz.nodemaps.CURRENT_CAMERA_POSITION";
 
@@ -205,6 +207,18 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
 	public void onConnected(
 			@Nullable
 					Bundle bundle) {
+		LocationRequest locationRequest = new LocationRequest();
+		locationRequest.setInterval(10000);
+		locationRequest.setFastestInterval(5000);
+		locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+		if (PermissionUtils.isEnoughPermissionsGranted(this)) {
+			return;
+		}
+		//noinspection MissingPermission
+		LocationServices.FusedLocationApi
+				.requestLocationUpdates(googleApiClient, locationRequest, this);
+
 		if (startAtLastLocation) {
 			if (PermissionUtils.isEnoughPermissionsGranted(this)) {
 				return;
@@ -216,18 +230,6 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
 					.moveCamera(this, lastLocation.getLatitude(), lastLocation.getLongitude(), 18);
 
 			updateLocation(lastLocation);
-
-			LocationRequest locationRequest = new LocationRequest();
-			locationRequest.setInterval(10000);
-			locationRequest.setFastestInterval(5000);
-			locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-			if (PermissionUtils.isEnoughPermissionsGranted(this)) {
-				return;
-			}
-			//noinspection MissingPermission
-			LocationServices.FusedLocationApi
-					.requestLocationUpdates(googleApiClient, locationRequest, this);
 		} else {
 			CameraPositionUtils.moveCamera(this, currentCameraPosition);
 		}
@@ -245,6 +247,7 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
 
 	@Override
 	public void onLocationChanged(Location location) {
+		Toast.makeText(this, "LOCATION UPDATE", Toast.LENGTH_SHORT).show();
 		updateLocation(location);
 	}
 
@@ -256,18 +259,21 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
 		try {
 			FtthCheckerRestApiRequest updateLastLocationRequest = new FtthCheckerRestApiRequest(
 					Request.Method.PUT, ServerAddressUtils.getServerHttpAddressWithContext(this)
-					+ "/user/updateLastLocation", new JSONObject(new Gson().toJson(ftthCheckerUser)),
+					+ "/user/updateLastLocation",
+					new JSONObject(new Gson().toJson(ftthCheckerUser)),
 					new Response.Listener<JSONObject>() {
 
 						@Override
 						public void onResponse(JSONObject response) {
-
+							Toast.makeText(AbstractMapActivity.this, "LOCATION UPDATED",
+									Toast.LENGTH_SHORT).show();
 						}
 					}, new Response.ErrorListener() {
 
 				@Override
 				public void onErrorResponse(VolleyError error) {
-
+					Toast.makeText(AbstractMapActivity.this, "LOCATION UPDATE ERROR",
+							Toast.LENGTH_SHORT).show();
 				}
 			}, ftthCheckerUser);
 
