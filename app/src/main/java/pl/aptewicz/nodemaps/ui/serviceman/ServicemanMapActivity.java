@@ -6,6 +6,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -36,6 +38,7 @@ import pl.aptewicz.nodemaps.listener.serviceman.OnFtthJobClickListener;
 import pl.aptewicz.nodemaps.listener.serviceman.OnMarkerClickServicemanListener;
 import pl.aptewicz.nodemaps.model.AccessPointDto;
 import pl.aptewicz.nodemaps.model.Edge;
+import pl.aptewicz.nodemaps.model.FtthCheckerUser;
 import pl.aptewicz.nodemaps.model.FtthIssue;
 import pl.aptewicz.nodemaps.model.Hierarchy;
 import pl.aptewicz.nodemaps.model.NodeDto;
@@ -243,7 +246,7 @@ public class ServicemanMapActivity extends AbstractMapActivity {
 			LatLng accessPointLatLng = new LatLng(accessPoint.getNode().getY(),
 					accessPoint.getNode().getX());
 			MarkerOptions accessPointMarker = new MarkerOptions().position(accessPointLatLng)
-					.title("Punkt dostępowy")
+					.title("Punkt dostępowy: " + accessPoint.getType())
 					.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
 			googleMap.addMarker(accessPointMarker).showInfoWindow();
 
@@ -265,8 +268,7 @@ public class ServicemanMapActivity extends AbstractMapActivity {
 					boundsBuilder.include(distributionSiteLatLng);
 
 					MarkerOptions distributionPointMarker = new MarkerOptions()
-							.position(distributionSiteLatLng)
-							.title("Punkt dystrybucji\nSzczegóły:" + " " +
+							.position(distributionSiteLatLng).title("Punkt dystrybucji:" + " " +
 									hierarchy.getDistributionSiteDescription())
 							.icon(BitmapDescriptorFactory
 									.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
@@ -279,7 +281,7 @@ public class ServicemanMapActivity extends AbstractMapActivity {
 
 					MarkerOptions centralSiteMarker = new MarkerOptions()
 							.position(centralSiteLatLng)
-							.snippet("OLT\nSzczególy: " + hierarchy.getCentralSiteDescription())
+							.title("OLT: " + hierarchy.getCentralSiteDescription())
 							.icon(BitmapDescriptorFactory
 									.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
 					googleMap.addMarker(centralSiteMarker).showInfoWindow();
@@ -339,6 +341,32 @@ public class ServicemanMapActivity extends AbstractMapActivity {
 			requestQueueSingleton.addToRequestQueue(findPathRequest);
 		} else {
 			super.onConnected(bundle);
+		}
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(R.id.action_update_issue).setVisible(showSignalPath);
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case R.id.action_update_issue:
+				Intent ftthIssueDetailsIntent = new Intent(this, FtthIssueDetailsActivity.class);
+				ftthIssueDetailsIntent.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, ftthCheckerUser);
+				ftthIssueDetailsIntent.setFlags(
+						ftthIssueDetailsIntent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
+				ftthIssueDetailsIntent
+						.putExtra(FtthIssueDetailsActivity.LAST_LOCATION, lastLocation);
+				ftthIssueDetailsIntent.putExtra(FtthIssue.FTTH_ISSUE,
+						ftthIssues[drawerList.getCheckedItemPosition()]);
+
+				startActivity(ftthIssueDetailsIntent);
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
 		}
 	}
 }
