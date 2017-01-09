@@ -192,7 +192,7 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
 		uiSettings.setCompassEnabled(true);
 		uiSettings.setMyLocationButtonEnabled(true);
 
-		if (PermissionUtils.isEnoughPermissionsGranted(this)) {
+		if (PermissionUtils.isNotEnoughPermissionsGranted(this)) {
 			return;
 		}
 		//noinspection MissingPermission
@@ -212,7 +212,7 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
 		locationRequest.setFastestInterval(5000);
 		locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-		if (PermissionUtils.isEnoughPermissionsGranted(this)) {
+		if (PermissionUtils.isNotEnoughPermissionsGranted(this)) {
 			return;
 		}
 		//noinspection MissingPermission
@@ -220,7 +220,7 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
 				.requestLocationUpdates(googleApiClient, locationRequest, this);
 
 		if (startAtLastLocation) {
-			if (PermissionUtils.isEnoughPermissionsGranted(this)) {
+			if (PermissionUtils.isNotEnoughPermissionsGranted(this)) {
 				return;
 			}
 

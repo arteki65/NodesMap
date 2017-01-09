@@ -189,7 +189,7 @@ public class ServicemanMapActivity extends AbstractMapActivity {
 			@Nullable
 					Bundle bundle) {
 		if (showRoute) {
-			if (PermissionUtils.isEnoughPermissionsGranted(this)) {
+			if (PermissionUtils.isNotEnoughPermissionsGranted(this)) {
 				return;
 			}
 
@@ -222,7 +222,7 @@ public class ServicemanMapActivity extends AbstractMapActivity {
 			googleMap
 					.animateCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 100));
 		} else if (showSignalPath) {
-			if (PermissionUtils.isEnoughPermissionsGranted(this)) {
+			if (PermissionUtils.isNotEnoughPermissionsGranted(this)) {
 				return;
 			}
 
