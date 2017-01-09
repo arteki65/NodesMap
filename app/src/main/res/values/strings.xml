@@ -35,6 +35,7 @@
     <string name="ftth_job_status">Status zlecenia:</string>
     <string name="action_search">Wysukaj adres</string>
     <string name="search_address_hint">Wprowadź adres(Ulica, Miasto)</string>
+    <string name="show_signal_path">Pokaż ścieżkę sygnału</string>
 
     <array name="mapResutAdminDrawerListItem">
         <item>Wyszukaj adres</item>

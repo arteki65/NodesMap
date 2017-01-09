@@ -10,15 +10,15 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import pl.aptewicz.nodemaps.R;
-import pl.aptewicz.nodemaps.model.FtthJob;
+import pl.aptewicz.nodemaps.model.FtthIssue;
 
-public class FtthJobAdapter extends ArrayAdapter<FtthJob> {
+public class FtthIssueAdapter extends ArrayAdapter<FtthIssue> {
 
     private final Context context;
     private final int layoutResourceId;
-    private final FtthJob[] data;
+    private final FtthIssue[] data;
 
-    public FtthJobAdapter(Context context, int layoutResourceId, FtthJob[] data) {
+    public FtthIssueAdapter(Context context, int layoutResourceId, FtthIssue[] data) {
         super(context, layoutResourceId, data);
         this.context = context;
         this.layoutResourceId = layoutResourceId;
@@ -43,12 +43,12 @@ public class FtthJobAdapter extends ArrayAdapter<FtthJob> {
             ftthJobHolder = (FtthJobHolder) row.getTag();
         }
 
-        FtthJob ftthJob = data[position];
+        FtthIssue ftthIssue = data[position];
         ftthJobHolder.textView.setText(context.getString(R.string.ftth_job_description) + "\n"
-                + ftthJob.getDescription() + "\n\n" + context.getString(R.string.latitude) + "\n"
-                + ftthJob.getLatitude() + "\n\n" + context.getString(R.string.longitude) + "\n"
-                + ftthJob.getLongitude() + "\n\n" + context.getString(R.string.ftth_job_status) + "\n"
-            + ftthJob.getJobStatus());
+                + ftthIssue.getDescription() + "\n\n" + context.getString(R.string.latitude) + "\n"
+                + ftthIssue.getLatitude() + "\n\n" + context.getString(R.string.longitude) + "\n"
+                + ftthIssue.getLongitude() + "\n\n" + context.getString(R.string.ftth_job_status) + "\n"
+            + ftthIssue.getFtthJob().getJobStatus());
 
         return row;
     }
