@@ -16,16 +16,10 @@
         <activity android:name=".SettingsActivity" android:label="SettingsActivity">
         </activity>
 
-        <activity android:name=".AddFtthJobActivity">
+        <activity android:name=".FtthIssueDetailsActivity">
         </activity>
 
-        <activity android:name=".FtthJobDetailsActivity">
-        </activity>
-
-        <activity android:name=".UpdateFtthJobActivity">
-        </activity>
-
-        <activity android:name=".ui.admin.AdminMapActivity">
+        <activity android:name=".UpdateFtthIssueActivity">
         </activity>
 
         <activity android:name=".ui.serviceman.ServicemanMapActivity">

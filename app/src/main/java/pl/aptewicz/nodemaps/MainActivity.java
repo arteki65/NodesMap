@@ -37,7 +37,6 @@ import pl.aptewicz.nodemaps.model.FtthCheckerUser;
 import pl.aptewicz.nodemaps.model.FtthCheckerUserRole;
 import pl.aptewicz.nodemaps.network.FtthCheckerRestApiRequest;
 import pl.aptewicz.nodemaps.network.RequestQueueSingleton;
-import pl.aptewicz.nodemaps.ui.admin.AdminMapActivity;
 import pl.aptewicz.nodemaps.ui.serviceman.ServicemanMapActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -174,11 +173,7 @@ public class MainActivity extends AppCompatActivity {
                                 .fromJson(response.toString(), FtthCheckerUser.class);
                         ftthCheckerUserFromResponse.setPassword(ftthCheckerUser.getPassword());
 
-                        if (FtthCheckerUserRole.ADMIN.equals(ftthCheckerUserFromResponse.getFtthCheckerUserRole())) {
-                            Intent adminMapActivity = new Intent(MainActivity.this, AdminMapActivity.class);
-                            adminMapActivity.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, ftthCheckerUserFromResponse);
-                            startActivity(adminMapActivity);
-                        } else if (FtthCheckerUserRole.SERVICEMAN.equals(ftthCheckerUserFromResponse.getFtthCheckerUserRole())) {
+                        if (FtthCheckerUserRole.SERVICEMAN.equals(ftthCheckerUserFromResponse.getFtthCheckerUserRole())) {
                             Intent servicemanActivity = new Intent(MainActivity.this, ServicemanMapActivity.class);
                             servicemanActivity.putExtra(FtthCheckerUser.FTTH_CHECKER_USER, ftthCheckerUserFromResponse);
                             startActivity(servicemanActivity);
