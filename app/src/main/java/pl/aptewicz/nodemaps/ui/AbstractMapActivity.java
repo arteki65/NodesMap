@@ -247,7 +247,6 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
 
 	@Override
 	public void onLocationChanged(Location location) {
-		Toast.makeText(this, "LOCATION UPDATE", Toast.LENGTH_SHORT).show();
 		updateLocation(location);
 	}
 
@@ -265,8 +264,6 @@ public abstract class AbstractMapActivity extends AppCompatActivity implements O
 
 						@Override
 						public void onResponse(JSONObject response) {
-							Toast.makeText(AbstractMapActivity.this, "LOCATION UPDATED",
-									Toast.LENGTH_SHORT).show();
 						}
 					}, new Response.ErrorListener() {
 
